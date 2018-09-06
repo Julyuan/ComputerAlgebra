@@ -10,6 +10,8 @@ procedure allcoeffs1(q, lis);
 procedure Coeffgcd(poly);
 begin
 	res := allcoeffs(poly, {x});
+	%write res;
+	if length(res) eq 1 then return first(res);
 	ans := first(res);
 	res := rest(res);
 	foreach x in res do
@@ -21,9 +23,11 @@ procedure Primipoly(x);
 begin
 	scalar temp;
 	temp:=Coeffgcd(x);
+	%write temp;
+	if temp neq 0 then
 	x:=x/temp;
 	return x;
-end
+end;
 
 procedure Primgcd(a,b);
 begin
@@ -32,11 +36,10 @@ begin
 	r:=Primipoly(second((pseudo_divide(a,b))));
 	while r neq 0 do
 	begin
-		write a;
-		write b;
 		a:=b;
 		b:=r;
 		r:=Primipoly(second((pseudo_divide(a,b))));
+		%write r;
 	end;
 	return b;
 end;
