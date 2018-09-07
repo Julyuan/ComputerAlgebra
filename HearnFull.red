@@ -21,15 +21,9 @@ begin
 			end;
 		end;
 		%write r;
+		r := Primipoly(r);
 		l := append(l,{lcof(r,x)});
 	end;
 	return b;
 end;
-
-aa:=x^8 + x^6 - 3*x^4 - 3*x^3 + 8x^2 + 2*x - 5;
-bb:=3x^5 + 5*x^4 - 4*x^2 - 9*x - 21;
-heuclid(aa,bb);
-%for iter:=1 step 1 until len do
-%begin
-%if r mod fisrt(l) eq 0 then l:=rest(l) else l := append(rest(l),fisrt(l));
-%end;
+	

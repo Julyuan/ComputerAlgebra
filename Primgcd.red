@@ -1,28 +1,19 @@
-procedure allcoeffs(q,lis);
-	%q:polynomial, lis: list of vars
-	allcoeffs1(list q, lis);
-
-procedure allcoeffs1(q, lis);
-	if lis={} then q else
-		allcoeffs1(foreach qq in q join coeff(qq,first lis),
-					rest lis);
-
-procedure Coeffgcd(poly);
+procedure Coeffgcd(poly,mvar);
 begin
-	res := allcoeffs(poly, {x});
+	scalar res,ans;
+	res := coeff(poly, mvar);
 	%write res;
 	if length(res) eq 1 then return first(res);
-	ans := first(res);
-	res := rest(res);
+	ans := lcof(poly, mvar);
 	foreach x in res do
-		ans := gcd(x,ans);
+		ans := Primgcd(x,ans);
 	return ans;
 end;
 
-procedure Primipoly(x);
+procedure Primipoly(x, mvar);
 begin
 	scalar temp;
-	temp:=Coeffgcd(x);
+	temp:=Coeffgcd(x, mvar);
 	%write temp;
 	if temp neq 0 then
 	x:=x/temp;
@@ -31,16 +22,35 @@ end;
 
 procedure Primgcd(a,b);
 begin
-	if b=0 then
-		return a;
-	r:=Primipoly(second((pseudo_divide(a,b))));
+	scalar coe1,coe2,coef,temp, mvar;
+	%write a;
+	%write b;
+	if b = 0 then return a;
+	if a = 0 then return b;
+	if numberp b and numberp a then return gcd(a,b);
+	
+	if mainvar(b) = 0 then mvar := mainvar(a) else mvar:=mainvar(b);
+	%write mvar;
+	if deg(a, mvar) < deg(b, mvar) then
+	<<temp:=a;a:=b;b:=temp>>;
+	%write 123;
+	coe1 := Coeffgcd(a,mvar);
+	coe2 := Coeffgcd(b,mvar);
+	%write 124;
+	coef := Primgcd(coe1, coe2);
+	%write 125;
+	if coe1 neq 0 then a:=a/coe1;
+	if coe2 neq 0 then b:=b/coe2;
+	
+
+	r:=Primipoly(second((pseudo_divide(a,b,mvar))),mvar);
 	while r neq 0 do
 	begin
 		a:=b;
 		b:=r;
-		r:=Primipoly(second((pseudo_divide(a,b))));
+		r:=Primipoly(second((pseudo_divide(a,b,mvar))),mvar);
 		%write r;
 	end;
-	return b;
+	return coef * b;
 end;
 	
