@@ -1,3 +1,17 @@
+procedure mygcd(a,b);
+begin
+	scalar r;
+	if a < 0 then a := -a;
+	if b < 0 then b := -b;
+	while b neq 0 do
+	begin
+		r := a mod b;
+		a := b;
+		b := r;
+	end;
+	return a;
+end;
+
 procedure Coeffgcd(poly,mvar);
 begin
 	scalar res,ans;
@@ -27,7 +41,7 @@ begin
 	%write b;
 	if b = 0 then return a;
 	if a = 0 then return b;
-	if numberp b and numberp a then return gcd(a,b);
+	if numberp b and numberp a then return mygcd(a,b);
 	
 	if mainvar(b) = 0 then mvar := mainvar(a) else mvar:=mainvar(b);
 	%write mvar;

@@ -1,30 +1,92 @@
-procedure HEuclid(a,b);
+procedure mygcd(a,b);
 begin
-	scalar r,l,iter,xx;
+	scalar r;
+	if a < 0 then a := -a;
+	if b < 0 then b := -b;
+	while b neq 0 do
+	begin
+		r := a mod b;
+		a := b;
+		b := r;
+	end;
+	return a;
+end;
+
+procedure Coeffgcd(poly,mvar);
+begin
+	scalar res,ans;
+	res := coeff(poly, mvar);
+	%write res;
+	ans := lcof(poly, mvar);
+	foreach x in res do
+		ans := HeuclidBasic(x,ans);
+	return ans;
+end;
+
+procedure Primipoly(x, mvar);
+begin
+	scalar temp;
+	temp:=Coeffgcd(x, mvar);
+	%write temp;
+	if temp neq 0 then
+	x:=x/temp;
+	return x;
+end;
+
+
+
+
+procedure HEuclidBasic(a,b);
+begin
+	scalar r,l,xx,mvar, temp, coe1, coe2;
 	if b=0 then return a;
-	r:=second(pseudo_divide(a,b));
-	l:=list(lcof(a,x),lcof(b,x),lcof(r,x));
+	if a=0 then return b;
+	if numberp a and numberp b then return mygcd(a,b);
+
+	if mainvar(b) = 0 then mvar := mainvar(a) else mvar:=mainvar(b);
+
+	
+	if deg(a, mvar) < deg(b, mvar) then 
+	begin
+		temp := a; a := b; b := temp
+	end;
+	
+	coe1 := Coeffgcd(a,mvar);
+	coe2 := Coeffgcd(b,mvar);
+	a := a/coe1;
+	b := b/coe2;
+	r:=second(pseudo_divide(a,b,mvar));
+
+	l:=list(lcof(a,mvar),lcof(b,mvar),lcof(r,mvar));
+	
 	%write r,l;
 	while r neq 0 do
 	begin
 		%write l;
 		a:=b;
 		b:=r;
-		r :=second(pseudo_divide(a,b));
+		if mainvar(b) = 0 then mvar := mainvar(a) else mvar:=mainvar(b);
+		r :=second(pseudo_divide(a,b,mvar));
 		foreach xx in l do
 		begin
-			if xx neq 0 and xx neq 1 and (r mod abs(xx)) eq 0 then
+			if xx neq 0 and xx neq 1 and second(pseudo_divide(r,xx,mvar)) eq 0 then
 			begin
-				while (r mod abs(xx)) eq 0
+				while second(pseudo_divide(r,xx,mvar)) eq 0
 				do
+				begin
+					write r,xx;
 					r := r / xx;
+				end;
 			end;
 		end;
 		%write r;
-		l := append(l,{lcof(r,x)});
+		%r := Primipoly(r,mvar);
+		l := append(l,{lcof(r,mvar)});
 	end;
-	return b;
+	return b*HEuclidBasic(coe1, coe2);
 end;
+	
+
 
 aa:=x^8 + x^6 - 3*x^4 - 3*x^3 + 8x^2 + 2*x - 5;
 bb:=3x^5 + 5*x^4 - 4*x^2 - 9*x - 21;
