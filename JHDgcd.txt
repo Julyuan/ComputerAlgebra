@@ -19,7 +19,7 @@ begin
 	%write res;
 	ans := lcof(poly, mvar);
 	foreach x in res do
-		ans := HeuclidFull(x,ans);
+		ans := JHDgcd(x,ans);
 	return ans;
 end;
 
@@ -33,10 +33,62 @@ begin
 	return x;
 end;
 
+procedure process(lis, ele);
+begin
+	scalar a,iter,queue,temp,l,pos;
+	if ele eq 0 then return lis;
+	write 127;
+	foreach iter in lis do
+	begin
+		write "iter = ",iter," ele = ",ele;
+		while (remainder(ele,iter) eq 0) and iter neq 1 and iter neq 0 do 
+			ele := ele / iter;
+	end;
+	
+	write 128;
+	lis := append(lis,{ele});
+	queue := {ele,length(lis)};
+
+	write 129;
+	while length(queue) neq 0 do 
+	begin
+		%write queue;
+		a := first(queue);
+		queue := rest(queue);
+		pos := first(queue);
+		queue := rest(queue);
+		%write a;
+		if a neq 0 and a neq 1 then 
+		begin
+			for iter := 1 step 1 until length(lis) do
+			begin
+				if ((part(lis,iter) mod a) eq 0) and (iter neq pos) then
+				begin
+					while ((part(lis,iter) mod a) eq 0) do
+					begin
+						lis:=(part(lis, iter) := part(lis, iter) / a);
+						write(part(lis,iter));
+					end;
+					queue := append(queue,{part(lis,iter),iter});
+				end;		
+			end;
+		end;
+	end;
+	for iter := 0 step 1 until length(lis) do
+	begin
+	%	write(lis);
+	%	write("jly = ",rest(lis));
+		if first(lis) eq 0 or first(lis) eq 1 then
+			lis := rest(lis)
+		else
+			lis := append(rest(lis),{first(lis)});
+	end;
+	return lis;
+	
+end;	
 
 
-
-procedure HEuclidFull(a,b);
+procedure JHDgcd(a,b);
 begin
 	scalar r,l,xx,mvar, temp, coe1, coe2;
 	if b=0 then return a;
@@ -83,17 +135,9 @@ begin
 		end;
 		%write r;
 		r := Primipoly(r,mvar);
-		l := append(l,{lcof(r,mvar)});
+		%l := append(l,{lcof(r,mvar)});
+		l := process(l, lcof(r,mvar));
 	end;
-	return b*HEuclidFull(coe1, coe2);
+	return b*JHDgcd(coe1, coe2);
 end;
 	
-
-
-aa:=x^8 + x^6 - 3*x^4 - 3*x^3 + 8x^2 + 2*x - 5;
-bb:=3x^5 + 5*x^4 - 4*x^2 - 9*x - 21;
-heuclidbasic(aa,bb);
-%for iter:=1 step 1 until len do
-%begin
-%if r mod fisrt(l) eq 0 then l:=rest(l) else l := append(rest(l),fisrt(l));
-%end;
