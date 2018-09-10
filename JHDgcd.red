@@ -12,7 +12,7 @@ begin
 	return a;
 end;
 
-procedure Coeffgcd(poly,mvar);
+procedure CoeffgcdJH(poly,mvar);
 begin
 	scalar res,ans;
 	res := coeff(poly, mvar);
@@ -23,10 +23,10 @@ begin
 	return ans;
 end;
 
-procedure Primipoly(x, mvar);
+procedure PrimipolyJH(x, mvar);
 begin
 	scalar temp;
-	temp:=Coeffgcd(x, mvar);
+	temp:=CoeffgcdJH(x, mvar);
 	%write temp;
 	if temp neq 0 then
 	x:=x/temp;
@@ -37,19 +37,19 @@ procedure process(lis, ele);
 begin
 	scalar a,iter,queue,temp,l,pos;
 	if ele eq 0 then return lis;
-	write 127;
+	%write 127;
 	foreach iter in lis do
 	begin
-		write "iter = ",iter," ele = ",ele;
-		while (remainder(ele,iter) eq 0) and iter neq 1 and iter neq 0 do 
+		%write "iter = ",iter," ele = ",ele;
+		while abs(iter) neq 1 and iter neq 0 and (remainder(ele,abs(iter)) eq 0)do 
 			ele := ele / iter;
 	end;
 	
-	write 128;
+	%write 128;
 	lis := append(lis,{ele});
 	queue := {ele,length(lis)};
 
-	write 129;
+	%write 129;
 	while length(queue) neq 0 do 
 	begin
 		%write queue;
@@ -58,16 +58,17 @@ begin
 		pos := first(queue);
 		queue := rest(queue);
 		%write a;
-		if a neq 0 and a neq 1 then 
+		if a neq 0 and abs(a) neq 1 then 
 		begin
 			for iter := 1 step 1 until length(lis) do
 			begin
-				if ((part(lis,iter) mod a) eq 0) and (iter neq pos) then
+				if (remainder(part(lis,iter),a) eq 0) and (iter neq pos) then
 				begin
-					while ((part(lis,iter) mod a) eq 0) do
+					%while ((part(lis,iter) mod abs(a)) eq 0) do
+					while (remainder(part(lis,iter),a) eq 0) do
 					begin
 						lis:=(part(lis, iter) := part(lis, iter) / a);
-						write(part(lis,iter));
+	%					write "127 ", (part(lis,iter));
 					end;
 					queue := append(queue,{part(lis,iter),iter});
 				end;		
@@ -103,13 +104,17 @@ begin
 		temp := a; a := b; b := temp
 	end;
 	
-	coe1 := Coeffgcd(a,mvar);
-	coe2 := Coeffgcd(b,mvar);
+	coe1 := CoeffgcdJH(a,mvar);
+	coe2 := CoeffgcdJH(b,mvar);
 	a := a/coe1;
 	b := b/coe2;
+	%write "a = ",a," b = ",b;
 	r:=second(pseudo_divide(a,b,mvar));
-
-	l:=list(lcof(a,mvar),lcof(b,mvar),lcof(r,mvar));
+	%	write "r = ",r;
+	%write "a = ",a," b = ",b," r = ",r;
+	l:=list(lcof(a,mvar));
+	l:=process(l,lcof(b,mvar));
+	l:=process(l,lcof(r,mvar));
 	
 	%write r,l;
 	while r neq 0 do
@@ -117,27 +122,29 @@ begin
 		%write l;
 		a:=b;
 		b:=r;
-		if mainvar(b) = 0 then mvar := mainvar(a) else mvar:=mainvar(b);
 		r :=second(pseudo_divide(a,b,mvar));
+	%	write "a = ",a," b = ",b," r = ",r;
 		foreach xx in l do
 		begin
-			if xx neq 0 and abs(xx) neq 1 and r neq 0 and remainder(r,xx,mvar) eq 0 then
+			if xx neq 0 and abs(xx) neq 1 and r neq 0 and pseudo_divide(r,xx,mvar) eq 0 then
 			begin
 				while remainder(r,xx,mvar) eq 0
 				do
 				begin
 					%write second(divide(r,xx,mvar));
-					write r;
-					write xx;
+	%				write r;
+	%				write xx;
 					r := r / xx;
 				end;
 			end;
 		end;
 		%write r;
-		r := Primipoly(r,mvar);
+		%r := PrimipolyJH(r,mvar);
 		%l := append(l,{lcof(r,mvar)});
 		l := process(l, lcof(r,mvar));
 	end;
+	b := PrimipolyJH(b,mvar);
+	%write "coe1 = ",coe1, " coe2 = ",coe2;
 	return b*JHDgcd(coe1, coe2);
 end;
 	

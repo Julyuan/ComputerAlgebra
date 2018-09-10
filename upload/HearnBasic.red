@@ -1,8 +1,11 @@
+% basic gcd procedure used for integers
 procedure mygcd(a,b);
 begin
+	% temp variable r
 	scalar r;
 	if a < 0 then a := -a;
 	if b < 0 then b := -b;
+	% division algorithm
 	while b neq 0 do
 	begin
 		r := a mod b;
@@ -12,22 +15,24 @@ begin
 	return a;
 end;
 
-procedure CoeffgcdHF(poly,mvar);
+% procedure to get gcd of all coefficients
+procedure CoeffgcdHB(poly,mvar);
 begin
 	scalar res,ans;
+	% get all coefficients
 	res := coeff(poly, mvar);
-	%write res;
 	ans := lcof(poly, mvar);
 	foreach x in res do
-		ans := HeuclidFull(x,ans);
+		ans := HearnBasicgcd(x,ans);
 	return ans;
 end;
 
-procedure PrimipolyHF(x, mvar);
+% get primitive primipoly
+procedure PrimipolyHB(x, mvar);
 begin
 	scalar temp;
-	temp:=CoeffgcdHF(x, mvar);
-	%write temp;
+	% temp is the gcd
+	temp:=CoeffgcdHB(x, mvar);
 	if temp neq 0 then
 	x:=x/temp;
 	return x;
@@ -36,36 +41,35 @@ end;
 
 
 
-procedure HEuclidFull(a,b);
+procedure HearnBasicgcd(a,b);
 begin
 	scalar r,l,xx,mvar, temp, coe1, coe2;
 	if b=0 then return a;
 	if a=0 then return b;
+	% if a and b are all numbers, call mygcd directly
 	if numberp a and numberp b then return mygcd(a,b);
-
+	% use mainvar to get main variable
 	if mainvar(b) = 0 then mvar := mainvar(a) else mvar:=mainvar(b);
 
-	
+	% compare degree
 	if deg(a, mvar) < deg(b, mvar) then 
 	begin
 		temp := a; a := b; b := temp
 	end;
 	
-	coe1 := CoeffgcdHF(a,mvar);
-	coe2 := CoeffgcdHF(b,mvar);
+	coe1 := CoeffgcdHB(a,mvar);
+	coe2 := CoeffgcdHB(b,mvar);
 	a := a/coe1;
 	b := b/coe2;
 	r:=second(pseudo_divide(a,b,mvar));
 
 	l:=list(lcof(a,mvar),lcof(b,mvar),lcof(r,mvar));
-	
-	%write r,l;
+
+	% similar to the slide
 	while r neq 0 do
 	begin
-		%write l;
 		a:=b;
 		b:=r;
-		%if mainvar(b) = 0 then mvar := mainvar(a) else mvar:=mainvar(b);
 		r :=second(pseudo_divide(a,b,mvar));
 		foreach xx in l do
 		begin
@@ -74,26 +78,11 @@ begin
 				while remainder(r,xx,mvar) eq 0
 				do
 				begin
-					%write second(divide(r,xx,mvar));
-					%write r;
-					%write xx;
 					r := r / xx;
 				end;
 			end;
 		end;
-		%write r;
-		r := PrimipolyHF(r,mvar);
 		l := append(l,{lcof(r,mvar)});
 	end;
-	return primipolyHF(b,mvar)*HEuclidFull(coe1, coe2);
+	return primipolyHB(b,mvar)*HearnBasicgcd(coe1, coe2);
 end;
-	
-
-
-%aa:=x^8 + x^6 - 3*x^4 - 3*x^3 + 8x^2 + 2*x - 5;
-%bb:=3x^5 + 5*x^4 - 4*x^2 - 9*x - 21;
-%heuclidbasic(aa,bb);
-%for iter:=1 step 1 until len do
-%begin
-%if r mod fisrt(l) eq 0 then l:=rest(l) else l := append(rest(l),fisrt(l));
-%end;

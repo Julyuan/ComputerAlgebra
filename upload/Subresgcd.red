@@ -16,11 +16,10 @@ procedure CoeffgcdSR(poly,mvar);
 begin
 	scalar res,ans;
 	res := coeff(poly, mvar);
-	%write res;
 	if length(res) eq 1 then return first(res);
 	ans := lcof(poly, mvar);
 	foreach x in res do
-		ans := SREuclid(x,ans);
+		ans := Subresgcd(x,ans);
 	return ans;
 end;
 
@@ -30,14 +29,13 @@ begin
 	if mvar eq 0 then return x;
 
 	temp:=CoeffgcdSR(x, mvar);
-	%write temp;
 	if temp neq 0 then
 	x:=x/temp;
 	return x;
 end;
 
 
-procedure SREuclid(f,g);
+procedure Subresgcd(f,g);
 begin
 	scalar beta0,
 	a0, a1,a2,coe1,coe2,
@@ -47,8 +45,6 @@ begin
 	if f = 0 then return g;	
 	if numberp g and numberp f then return mygcd(g,f);
 
-	%array mybeta(5), a(5),
-	%mydel(5), mypsi(5);
 	if mainvar(g) = 0 then mvar := mainvar(f) else mvar:=mainvar(g);
 
 	if deg(f,mvar) < deg(g,mvar) then
@@ -57,8 +53,6 @@ begin
 		a1 := PrimipolySR(f,mvar);
 		coe1 := g/a0;
 		coe2 := f/a1;
-	%	write coe1;
-	%	write coe2;
 	end
 	else
 	begin
@@ -66,8 +60,6 @@ begin
 		a1 := PrimipolySR(g,mvar);
 		coe2 := f/a0;
 		coe1 := g/a1;
-	%	write coe1;
-	%	write coe2;
 	end;
 	
 	del0 := deg(a0,mvar) - deg(a1,mvar);
@@ -75,34 +67,21 @@ begin
 	psi0:=-1;
 	while a1 neq 0 do
 	<<	
-		%write "a0=",a0;
-		%write "a1=",a1;
-		%write "mvar=",mvar;
-		%write pseudo_remainder(a0,a1,mvar);
+		% beta0 changes by the formula
 		a2 := first divide(pseudo_remainder(a0, a1, mvar), beta0, mvar);;
-		%write a2," ",beta0;
-		%write 127;
 		del1 := deg(a1,mvar) - deg(a2,mvar);
 		psi1 := (-lcof(a1,mvar))^del0 * psi0^(1-del0);
-		%write 128;
 		beta0 := -lcof(a1,mvar)*psi1^del1;
-		%write 129;
 		a0 := a1;
 		a1 := a2;
 		del0 := del1;
 		psi0 := psi1;
 		>>;
-	%write 130;
-	%write a0;
-	%write mvar;
-	%write coe1;
-%	write coe2;
 	if mvar neq 0 then
 	temp := PrimipolySR(a0,mvar)
 	else 
 	temp:=1;
 
-	%write 127;
-	return temp*SREuclid(coe1,coe2);
+	return temp*Subresgcd(coe1,coe2);
 end;
 		

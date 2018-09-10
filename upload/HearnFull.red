@@ -16,10 +16,9 @@ procedure CoeffgcdHF(poly,mvar);
 begin
 	scalar res,ans;
 	res := coeff(poly, mvar);
-	%write res;
 	ans := lcof(poly, mvar);
 	foreach x in res do
-		ans := HeuclidFull(x,ans);
+		ans := HearnFullgcd(x,ans);
 	return ans;
 end;
 
@@ -36,7 +35,7 @@ end;
 
 
 
-procedure HEuclidFull(a,b);
+procedure HearnFullgcd(a,b);
 begin
 	scalar r,l,xx,mvar, temp, coe1, coe2;
 	if b=0 then return a;
@@ -59,13 +58,10 @@ begin
 
 	l:=list(lcof(a,mvar),lcof(b,mvar),lcof(r,mvar));
 	
-	%write r,l;
 	while r neq 0 do
 	begin
-		%write l;
 		a:=b;
 		b:=r;
-		%if mainvar(b) = 0 then mvar := mainvar(a) else mvar:=mainvar(b);
 		r :=second(pseudo_divide(a,b,mvar));
 		foreach xx in l do
 		begin
@@ -81,19 +77,10 @@ begin
 				end;
 			end;
 		end;
-		%write r;
+		% The only difference from HearnBasic
 		r := PrimipolyHF(r,mvar);
 		l := append(l,{lcof(r,mvar)});
 	end;
-	return primipolyHF(b,mvar)*HEuclidFull(coe1, coe2);
+	return primipolyHF(b,mvar)*HearnFullgcd(coe1, coe2);
 end;
 	
-
-
-%aa:=x^8 + x^6 - 3*x^4 - 3*x^3 + 8x^2 + 2*x - 5;
-%bb:=3x^5 + 5*x^4 - 4*x^2 - 9*x - 21;
-%heuclidbasic(aa,bb);
-%for iter:=1 step 1 until len do
-%begin
-%if r mod fisrt(l) eq 0 then l:=rest(l) else l := append(rest(l),fisrt(l));
-%end;
