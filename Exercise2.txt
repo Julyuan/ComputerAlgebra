@@ -1,0 +1,99 @@
+%1a
+load_package "groebner";
+torder({}, lex);
+
+%	g1 := a+b+c;
+%	g2 := ab+bc+ac;
+%	g3 := abc - 1;
+%
+%
+
+g1 := a+b+c;
+g2 := a*b+b*c+a*c;
+g3 := a*b*c - 1;
+lis := list(12,13,23);
+array S(100);
+
+% cur = 12
+cur := first(lis);
+lis := rest(lis);
+S(12) := g1*b - g2;
+temp := S(12);
+temp := S(12) + g1 * c;
+g4 := temp;
+lis := append(lis,{14,24,34});
+
+% cur = 13
+cur := first(lis);
+lis := rest(lis);
+
+S(13) := b*c*g1 - g3;
+temp := S(13);
+temp :=  temp - c*g4;
+g5 := temp;
+lis := append(lis,{15,25,35,45});
+
+% cur = 23
+cur := first(lis);
+lis = rest(lis);
+
+%第三定理，不用算
+
+% cur = 14
+cur = first(lis);
+lis := rest(lis);
+
+%第一定理，不用算
+
+
+% cur = 24
+cur:=first(lis);
+lis := rest(lis);
+
+%不用算，第三定理
+
+% cur = 34
+cur:=first(lis);
+lis := rest(lis);
+
+%不用算，第三定理
+
+% cur = 15
+cur := first(lis);
+lis := rest(lis);
+
+%不用算，第一定理
+
+% cur = 25
+cur := first(lis);
+lis := rest(lis);
+
+%不用算，第一定理
+
+% cur = 35
+cur := first(lis);
+lis := rest(lis);
+
+%不用算，第三定理
+
+% cur = 45
+cur := first(lis);
+lis := rest(lis);
+
+%不用算，第一定理
+
+
+% interreduce
+
+g2 := g2 - g1*b;
+g2 := g2 - g1*c;
+g4 := g4 - g2;
+g3 := g3 - g1*b*c;
+g3 := g3 - g2*c;
+g5 := g3 + g5;
+
+groebner{a+b+c+d+e,a*b+b*c+c*d+d*e+a*e,
+		a*b*c+b*c*d+c*d*e+a*d*e+a*b*e,
+		a*b*c*d+b*c*d*e+c*d*e*a+d*e*a*b+e*a*b*c,
+		a*b*c*d*e - 1};
+;end;
